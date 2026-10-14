@@ -1,0 +1,5 @@
+{
+  "name": "image-convergence-skill",
+  "description": "An agent skill that reviews generated images against their original prompt and iterates prompt + generation autonomously to convergence.",
+  "skills": ["./skill/image-convergence"]
+}

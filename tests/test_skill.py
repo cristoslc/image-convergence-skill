@@ -7,6 +7,7 @@ positive-only phrasing audit, and the deployment-agnostic guard.
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 import unittest
@@ -148,6 +149,35 @@ class AgnosticismTests(unittest.TestCase):
         text = load_skill_text().lower()
         for frag in self.FORBIDDEN_FRAGMENTS:
             self.assertNotIn(frag, text, f"leak: '{frag}'")
+
+
+class CliInstallabilityTests(unittest.TestCase):
+    """The Agent Skills CLI (`npx skills add`) must keep finding the bundle.
+
+    The CLI discovers skills at standard container locations (`skills/`,
+    repo root) and through plugin-manifest declared paths; our canonical
+    `skill/` layout is published through the manifest entrypoint, so the
+    manifest must exactly name the canonical path. A refactor that breaks
+    either side silently drops the skill from CLI discovery.
+    """
+
+    MANIFEST_FILE = REPO_ROOT / ".claude-plugin" / "plugin.json"
+    DECLARED_SKILL_PATH = "./skill/image-convergence"
+
+    def test_entrypoint_manifest_declares_canonical_skill(self):
+        manifest = json.loads(self.MANIFEST_FILE.read_text(encoding="utf-8"))
+        self.assertIn(self.DECLARED_SKILL_PATH, manifest.get("skills", []))
+        self.assertTrue(manifest.get("name"), "plugin manifest needs a name")
+
+    def test_declared_path_resolves_to_canonical_bundle(self):
+        relative = self.DECLARED_SKILL_PATH.removeprefix("./")
+        self.assertEqual(SKILL_FILE, REPO_ROOT / relative / "SKILL.md")
+        self.assertTrue((REPO_ROOT / relative / "SKILL.md").is_file())
+
+    def test_declared_bundle_carries_required_frontmatter(self):
+        fm = frontmatter(load_skill_text())
+        self.assertEqual(fm.get("name"), "image-convergence")
+        self.assertTrue(fm.get("description"), "description frontmatter is required")
 
 
 if __name__ == "__main__":

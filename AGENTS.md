@@ -30,6 +30,10 @@ scripts/staging/deploy.sh "$(git rev-parse --abbrev-ref HEAD)"
 scripts/staging/e2e.sh "$(git rev-parse --abbrev-ref HEAD)"
 ```
 
+## Agent Skills CLI entrypoint
+
+`npx skills add cristoslc/image-convergence-skill` discovers the bundle through the plugin-manifest entrypoint `.claude-plugin/plugin.json`, whose `skills` array declares `./skill/image-convergence` — the canonical path above. Refactor the manifest and the bundle path together in the same commit; `tests/test_skill.py::CliInstallabilityTests` pins the manifest-to-path contract.
+
 ## Deployment scripts
 
 `scripts/staging/{deploy.sh,e2e.sh,teardown.sh}` install, verify, and remove the skill bundle in a filesystem skills directory, using `IMGCONV_SKILLS_DIR` (default `~/.claude/skills`) and the branch name as the staging identity: staging installs under `.staging-<branch>/image-convergence/`, production (`IMGCONV_DEPLOY_ENV=production`) installs to the live `image-convergence/`. Missing env values fall back to documented defaults; deploy verifies the target path is written before returning. `teardown.sh` accepts the branch name and removes exactly that staging slot.

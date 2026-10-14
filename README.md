@@ -8,6 +8,16 @@ The agent owns the loop: it assumes approval for each iteration, stops on the bu
 
 `generate -> review(score) -> revise(positive additions) -> generate ...` with a stall detector (three attempts without a new best) that rotates through six creative tactics, and three stop conditions (converged, cap, tactics exhausted).
 
+## Install
+
+One command installs the bundle into any supported agent harness ([Agent Skills CLI](https://skills.sh)):
+
+```bash
+npx skills add cristoslc/image-convergence-skill
+```
+
+Add `-a <agent>` to target one harness (for example `-a claude-code` or `-a opencode`), `-g` for a user-wide install, or `--copy` to copy files instead of symlinking. The CLI discovers the skill through the manifest at `.claude-plugin/plugin.json`, which points at the canonical bundle path `skill/image-convergence/SKILL.md`.
+
 ## Layout
 
 - `skill/image-convergence/SKILL.md` — the skill bundle (the product).
