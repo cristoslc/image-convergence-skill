@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pyright/
+
+# macOS / Linux / Windows
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+.idea/
+.vscode/
+
+# Project-local scratch
+/worktrees/
+.worktrees/

@@ -1,0 +1,3 @@
+# Purpose
+
+An agent skill that closes the loop on generated images: the agent reviews each returned image against the original prompt, scores compliance across five dimensions, and iterates prompt plus generation autonomously until the image converges or the attempt cap ends the run. The deliverable is the `image-convergence` skill bundle at `skill/image-convergence/SKILL.md`, harness-agnostic and positive-only in phrasing. The Python engine at `engine/image_convergence.py` is the executable reference of the loop's decision rule, kept in lockstep with the skill prose by the structural tests.
