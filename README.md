@@ -18,6 +18,49 @@ npx skills add cristoslc/image-convergence-skill
 
 Add `-a <agent>` to target one harness (for example `-a claude-code` or `-a opencode`), `-g` for a user-wide install, or `--copy` to copy files instead of symlinking. The CLI discovers the skill through the manifest at `.claude-plugin/plugin.json`, which points at the canonical bundle path `skill/image-convergence/SKILL.md`.
 
+## Install in Open WebUI
+
+Open WebUI (v0.11) stores a skill as one row. The install mirrors the SKILL.md YAML frontmatter into the row's `name`/`description` columns, strips the frontmatter from the blob, and posts the body (`# Image Convergence Loop` onward) verbatim as the row's `content`. Mention it in chat with `<$image-convergence|label>` … `</image-convergence>`.
+
+Create it once per instance (admin key with `workspace.skills` permission; standard library only):
+
+```bash
+export OWUI_BASE_URL=https://chat.example.com   # your instance
+export OWUI_API_KEY=sk-...                      # admin key
+python3 - <<'PY'
+import json, os, re, urllib.request
+raw = urllib.request.urlopen(
+    "https://raw.githubusercontent.com/cristoslc/image-convergence-skill/main/skill/image-convergence/SKILL.md"
+).read().decode()
+m = re.match(r"^---\n(.*?)\n---\n", raw, re.DOTALL)
+fm, content = {}, raw[m.end():]
+for line in m.group(1).splitlines():
+    key, _, value = line.partition(":")
+    fm[key.strip()] = value.strip()
+payload = {
+    "id": fm["name"],
+    "name": fm["name"],
+    "description": fm["description"],
+    "content": content,
+    "meta": {"tags": ["image-generation", "review-loop"]},
+    "is_active": True,
+}
+req = urllib.request.Request(
+    os.environ["OWUI_BASE_URL"].rstrip("/") + "/api/v1/skills/create",
+    data=json.dumps(payload).encode(),
+    headers={
+        "Authorization": "Bearer " + os.environ["OWUI_API_KEY"],
+        "Content-Type": "application/json",
+    },
+    method="POST",
+)
+with urllib.request.urlopen(req) as res:
+    print(res.status, json.loads(res.read()).get("id"))
+PY
+```
+
+Verify, update, and delete commands: [docs/open-webui-install.md](docs/open-webui-install.md).
+
 ## Layout
 
 - `skill/image-convergence/SKILL.md` — the skill bundle (the product).
